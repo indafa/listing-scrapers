@@ -1,0 +1,19 @@
+{
+  "name": "listing-scrapers",
+  "private": true,
+  "type": "module",
+  "description": "جمع‌آوری و غنی‌سازی آگهی‌های عمومی بازار اصفهان (GitHub Actions)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "collect": "node categories/mobile-tablet/run.mjs",
+    "enrich": "node jobs/enrich.mjs",
+    "liveness": "node jobs/liveness.mjs",
+    "prices": "node jobs/prices.mjs",
+    "catalog": "node jobs/catalog.mjs",
+    "news": "node jobs/news.mjs",
+    "test": "node --no-warnings --test \"tests/*.test.mjs\"",
+    "lint-none": "node -e \"console.log('این ریپو لینتر ندارد.')\""
+  }
+}

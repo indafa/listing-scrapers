@@ -1,0 +1,38 @@
+name: ساخت و به‌روزرسانی کاتالوگ مدل‌ها
+
+# این ورک‌فلو «زمان‌بند» ندارد، عمداً.
+# زمان‌بندی گیت‌هاب دقیق نیست و گاهی ده‌ها دقیقه دیر یا حذف می‌شود.
+# به‌جایش Worker مشاور سر ساعت دقیق، همین ورک‌فلو را از راه API صدا می‌زند (workflow_dispatch).
+# دکمه‌ی «Run workflow» در تب Actions هم همچنان کار می‌کند.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read   # کمترین دسترسی ممکن؛ فقط کد را می‌خواند
+
+concurrency:
+  group: mobile-tablet-catalog
+  cancel-in-progress: false  # اجراها روی هم نمی‌افتند، صف می‌شوند
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10   # اجرای عادی کمتر از یک دقیقه
+    steps:
+      - name: برداشتن کد این ریپو
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: نصب وابستگی‌ها (فقط اگر package-lock.json باشد)
+        run: if [ -f package-lock.json ]; then npm ci; fi
+
+      - name: اجرای ساخت کاتالوگ
+        env:
+          CATALOG_SOURCE_BASE: ${{ vars.CATALOG_SOURCE_BASE }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+        run: node jobs/catalog.mjs
